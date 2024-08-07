@@ -24,6 +24,10 @@ jobs:
         run: pip install -r src/requirements.txt
 
       - name: Run autotest test_name_city_program.py
+        env:
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
         run: |
           echo "Run: src/app_booklist.py"
           python src/app_booklist.py
