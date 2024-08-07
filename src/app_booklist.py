@@ -6,9 +6,10 @@ APP_VERSION = "1.0.0"
 
 # Подключение к базе данных
 db = mysql.connector.connect(
-    host="localhost",
+    host="192.168.202.5",
+    port=3306,
     user="root",
-    password="password",
+    password="book",
     database="book_catalog"
 )
 
