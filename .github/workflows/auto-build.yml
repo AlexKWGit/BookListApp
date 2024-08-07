@@ -19,11 +19,9 @@ jobs:
         with:
           python-version: 3.x
 
-      - name: Install requests module
-        run: pip install requests
-
-#      - name: Install Dependencies
-#        run: pip install -r src/requirements.txt 
+      - name: Install requests module - Dependencies
+#       run: pip install requests
+        run: pip install -r src/requirements.txt
 
       - name: Run autotest test_name_city_program.py
         run: |
