@@ -1,0 +1,33 @@
+name: CI аuto-build app
+
+on: [push]
+
+jobs:
+  my_AutoTest:
+    runs-on: [ubuntu-latest]
+
+    steps:
+      - name: Checkout Code in repository
+        uses: actions/checkout@v2
+#       uses: actions/checkout@v4
+
+#     - name: List current folder
+#       run : ls -la
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install requests module
+        run: pip install requests
+
+#      - name: Install Dependencies
+#        run: pip install -r src/requirements.txt 
+
+      - name: Run autotest test_name_city_program.py
+        run: |
+          echo "Run: src/app_booklist.py"
+          python src/app_booklist.py
+
+#         python -m unittest test_name_city_program.py
