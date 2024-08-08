@@ -2,8 +2,12 @@ name: CI аuto-build app
 
 on: [push]
 
+env:
+  RUN_ID: ${{ github.run_id }}
+  TAG: book-1
+
 jobs:
-  my_AutoTest:
+  Task1_AutoTest:
     runs-on: [ubuntu-latest]
 
     steps:
@@ -31,5 +35,80 @@ jobs:
         run: |
           echo "Run: src/app_booklist.py"
           python src/app_booklist.py
-
 #         python -m unittest test_name_city_program.py
+
+      - name: Build & push Docker image
+        uses: mr-smithers-excellent/docker-build-push@v6
+        with:
+          image: public/alexk
+          tags: ${{env.TAG}}
+          registry: jfrog.it-academy.by
+          dockerfile: Dockerfile
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+  Task2_deploy:
+    needs: Task1_AutoTest
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Chart Checkout
+        uses: actions/checkout@v2
+      - name: Helm Installation
+        uses: azure/setup-helm@v1.1
+        with:
+          version: v3.7.0
+      - name: Helm Repository Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: AlexKWGit/helm-test/helm-releases
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: true
+          ref: helm-branch
+          path: charts
+      - name: Helm Package
+        run: helm package proj-book-app --version "1.2.0+${{env.RUN_ID}}" -d charts
+      - name: Helm Push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd charts
+          ls
+          git config --global user.email "AlexKWGit@gmail.com"
+          git config --global user.name "AlexKWGit"
+          CHART_PACKAGE_NAME="proj-book-app-1.2.0+${{env.RUN_ID}}.tgz"
+          git add "$CHART_PACKAGE_NAME"
+          git commit -m "$CHART_PACKAGE_NAME"
+          git push origin helm-branch
+
+      - name: Git Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: helm-branch
+      - name: Helm Installation
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.13.3
+      - name: Update Index
+        run: |
+          helm repo index .
+          git config --global user.email "AlexKWGit@gmail.com"
+          git config --global user.name "AlexKWGit"
+          git add index.yaml
+          git commit -m "Update chart index"
+          git push origin helm-branch
+
+      - name: Git Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Update application
+        run: |
+          cd app
+          ls
+          sed -i 's|targetRevision:.*|targetRevision: '1.2.0+${{env.RUN_ID}}'|' index.yaml
+          git config --global user.email "AlexKWGit@gmail.com"
+          git config --global user.name "Alexandr Kuznetsov"
+          git add index.yaml
+          git commit -m "Update index.yaml"
+          git push origin main
