@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 import mysql.connector
 
 # Версия приложения
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.2.0"
 
 # Подключение к базе данных
 def get_db_connection():
