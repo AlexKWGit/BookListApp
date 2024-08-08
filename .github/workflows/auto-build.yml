@@ -34,7 +34,7 @@ jobs:
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
         run: |
           echo "Run: src/app_booklist.py"
-#         python src/app_booklist.py
+          python src/app_booklist.py
 #         python -m unittest src/app_booklist_test.py
 
       - name: Build & push Docker image
